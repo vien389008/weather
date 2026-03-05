@@ -1,26 +1,45 @@
 import { router } from "expo-router";
-import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-export default function CurrentWeather({ weather }: any) {
+import { getWeatherDescription, getWeatherIcon } from "../utils/weatherCode";
+
+type Props = {
+  weather: any;
+  locationName?: string;
+};
+
+export default function CurrentWeather({ weather, locationName }: Props) {
   if (!weather) return null;
 
-  const temp = weather.current_weather.temperature;
-  const [open, setOpen] = useState(false);
+  const temp = Math.round(weather.current_weather.temperature);
+  const code = weather.current_weather.weathercode;
+
+  const handlePress = () => {
+    router.push({
+      pathname: "/weather-detail",
+      params: {
+        weather: JSON.stringify(weather),
+        locationName: locationName || "",
+      },
+    });
+  };
+
   return (
-    <Pressable onPress={() => router.push("/weather-detail")}>
+    <Pressable onPress={handlePress}>
       <View style={styles.card}>
         <View>
-          <Text style={styles.status}>Ít mây</Text>
+          <Text style={styles.status}>{getWeatherDescription(code)}</Text>
 
           <Text style={styles.temp}>{temp}°</Text>
 
           <Text style={styles.feel}>Cảm giác như {temp}°</Text>
         </View>
 
-        <View>
-          <Text style={styles.uv}>☀</Text>
-          <Text>UV 3 Trung bình</Text>
-          <Text>SPF 6-10</Text>
+        <View style={styles.right}>
+          <Text style={styles.icon}>{getWeatherIcon(code)}</Text>
+
+          <Text style={styles.uv}>UV 3 Trung bình</Text>
+
+          <Text style={styles.spf}>SPF 6-10</Text>
         </View>
       </View>
     </Pressable>
@@ -30,28 +49,49 @@ export default function CurrentWeather({ weather }: any) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#69b6d6",
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 20,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
   },
 
   status: {
     fontSize: 18,
-    color: "white",
+    color: "#fff",
+    marginBottom: 6,
   },
 
   temp: {
     fontSize: 60,
-    fontWeight: "bold",
-    color: "black",
+    fontWeight: "700",
+    color: "#000",
+    lineHeight: 64,
   },
 
   feel: {
-    color: "white",
+    color: "#fff",
+    fontSize: 15,
+    marginTop: 4,
+  },
+
+  right: {
+    alignItems: "center",
+  },
+
+  icon: {
+    fontSize: 32,
+    marginBottom: 4,
   },
 
   uv: {
-    fontSize: 30,
+    color: "#fff",
+    fontSize: 14,
+  },
+
+  spf: {
+    color: "#fff",
+    fontSize: 13,
+    marginTop: 2,
   },
 });
