@@ -37,7 +37,7 @@ export default function HourlyWeather({ weather }: any) {
 
             <Text style={styles.icon}>{getWeatherIcon(weatherCodes[i])}</Text>
 
-            <Text>{temperatures[i]}°</Text>
+            <Text>{Math.round(temperatures[i])}°</Text>
           </View>
         ))}
       </ScrollView>
@@ -47,7 +47,7 @@ export default function HourlyWeather({ weather }: any) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#eee",
+    backgroundColor: "white",
     borderRadius: 12,
     padding: 15,
     marginTop: 15,

@@ -22,7 +22,11 @@ export const formatDateTitle = (dateStr: string) => {
     "Thứ bảy",
   ];
 
-  return `${weekdays[date.getDay()]} tháng ${date.getMonth() + 1} ${date.getDate()}`;
+  const dayName = weekdays[date.getDay()];
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+
+  return `${dayName}, ${day} tháng ${month}`;
 };
 
 export const formatHour = (dateStr: string) => {

@@ -1,14 +1,17 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Text, View } from "react-native";
 import { getAQILevel } from "../utils/airQuality";
 
 export default function AirQualityCard({ pm25 }: any) {
   const aqi = getAQILevel(pm25);
 
+  // vị trí chấm tròn
+  const percent = Math.min(pm25 / 150, 1) * 100;
+
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title}>Chất lượng không khí</Text>
-
         <Text style={styles.detail}>Chi tiết</Text>
       </View>
 
@@ -19,9 +22,35 @@ export default function AirQualityCard({ pm25 }: any) {
 
         <View>
           <Text style={styles.status}>{aqi.text}</Text>
-
-          <Text style={styles.pm}>PM2.5 ({pm25} µg/m³)</Text>
+          <Text style={styles.pm}>PM₂.₅ ({pm25} µg/m³)</Text>
         </View>
+      </View>
+
+      {/* Thanh AQI */}
+      <View style={styles.barWrapper}>
+        <LinearGradient
+          colors={[
+            "#00bcd4",
+            "#4caf50",
+            "#ffeb3b",
+            "#ff9800",
+            "#f44336",
+            "#8e24aa",
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.bar}
+        />
+
+        {/* Chấm tròn */}
+        <View
+          style={[
+            styles.dot,
+            {
+              left: `${percent}%`,
+            },
+          ]}
+        />
       </View>
     </View>
   );
@@ -29,10 +58,11 @@ export default function AirQualityCard({ pm25 }: any) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#F5F6F8",
+    backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
     marginTop: 16,
+    marginBottom: 60,
   },
 
   header: {
@@ -53,6 +83,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 16,
   },
 
   aqiBox: {
@@ -77,5 +108,28 @@ const styles = StyleSheet.create({
 
   pm: {
     color: "#555",
+  },
+
+  barWrapper: {
+    position: "relative",
+    height: 8,
+    borderRadius: 4,
+    overflow: "visible",
+  },
+
+  bar: {
+    height: 8,
+    borderRadius: 4,
+  },
+
+  dot: {
+    position: "absolute",
+    top: -4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: "white",
+    borderWidth: 3,
+    borderColor: "#ff5722",
   },
 });

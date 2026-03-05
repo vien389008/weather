@@ -9,10 +9,9 @@ type Props = {
 
 export default function CurrentWeather({ weather, locationName }: Props) {
   if (!weather) return null;
-
   const temp = Math.round(weather.current_weather.temperature);
   const code = weather.current_weather.weathercode;
-
+  const windseed = weather.current_weather.windspeed;
   const handlePress = () => {
     router.push({
       pathname: "/weather-detail",
@@ -29,17 +28,26 @@ export default function CurrentWeather({ weather, locationName }: Props) {
         <View>
           <Text style={styles.status}>{getWeatherDescription(code)}</Text>
 
-          <Text style={styles.temp}>{temp}°</Text>
+          <Text style={styles.temp}>
+            {temp}
+            {weather.current_weather_units.temperature}
+          </Text>
 
-          <Text style={styles.feel}>Cảm giác như {temp}°</Text>
+          <Text style={styles.feel}>
+            Cảm giác như {temp}
+            {weather.current_weather_units.temperature}
+          </Text>
         </View>
 
         <View style={styles.right}>
           <Text style={styles.icon}>{getWeatherIcon(code)}</Text>
 
-          <Text style={styles.uv}>UV 3 Trung bình</Text>
+          <Text style={styles.uv}>
+            Gió: {windseed}
+            {weather.current_weather_units.windspeed}
+          </Text>
 
-          <Text style={styles.spf}>SPF 6-10</Text>
+          {/* <Text style={styles.spf}>SPF 6-10</Text> */}
         </View>
       </View>
     </Pressable>

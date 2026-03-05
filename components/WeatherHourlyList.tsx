@@ -56,6 +56,9 @@ export default function WeatherHourlyList({ weather }: any) {
 
         // UV
         uvIndex: weather.hourly.uv_index?.[i],
+
+        // precipitation
+        precipitation_pro: weather.hourly.precipitation_probability?.[i],
       }))
       .filter((item: any) => item.time.startsWith(today));
   }, [weather]);
@@ -184,8 +187,10 @@ export default function WeatherHourlyList({ weather }: any) {
                     <Text style={styles.value}>{hour.pressure ?? "--"} mb</Text>
                   </View>
                   <View style={styles.detailItem}>
-                    <Text style={styles.label}>Tuyết rơi</Text>
-                    <Text style={styles.value}>{hour.snowfall ?? "--"} cm</Text>
+                    <Text style={styles.label}>Xác xuất mưa</Text>
+                    <Text style={styles.value}>
+                      {hour.precipitation_pro ?? "--"} %
+                    </Text>
                   </View>
                 </View>
               </View>

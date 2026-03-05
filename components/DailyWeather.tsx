@@ -14,12 +14,14 @@ export default function DailyWeather({ weather }: any) {
     <View style={styles.container}>
       {days.map((day: string, i: number) => (
         <View key={i} style={styles.row}>
-          <Text style={styles.day}>{formatDay(day)}</Text>
-
+          <View style={styles.leftDay}>
+            <Text style={styles.day}>{formatDay(day).label}</Text>
+            <Text style={styles.subDay}>{formatDay(day).sub}</Text>
+          </View>
           <Text style={styles.icon}>{getWeatherIcon(codes[i])}</Text>
 
           <Text style={styles.temp}>
-            {max[i]}° / {min[i]}°
+            {Math.round(max[i])}° / {Math.round(min[i])}°
           </Text>
         </View>
       ))}
@@ -40,12 +42,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
     borderBottomWidth: 0.5,
+    alignItems: "center",
   },
-
+  leftDay: {
+    width: 80,
+  },
   day: {
     fontSize: 16,
   },
-
+  subDay: {
+    fontSize: 12,
+  },
   icon: {
     fontSize: 22,
   },
@@ -53,5 +60,6 @@ const styles = StyleSheet.create({
   temp: {
     fontSize: 16,
     fontWeight: "bold",
+    width: 80,
   },
 });

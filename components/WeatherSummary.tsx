@@ -15,7 +15,8 @@ export default function WeatherSummary({ weather }: any) {
   const tempMin = weather.daily.temperature_2m_min?.[0];
 
   const windMax = weather.daily.windspeed_10m_max?.[0];
-
+  const windMin = weather.daily.windspeed_10m_min?.[0];
+  const windCode = weather.daily_units.windspeed_10m_max;
   return (
     <Pressable style={styles.card} onPress={() => setOpen(!open)}>
       {/* TOP ROW */}
@@ -54,7 +55,8 @@ export default function WeatherSummary({ weather }: any) {
             <Ionicons name="navigate-outline" size={20} color="#2f97d8" />
 
             <Text style={styles.extraText}>
-              Tốc độ gió {Math.round(windMax)} km/h
+              Tốc độ gió {Math.round(windMin)} - {Math.round(windMax)}
+              {windCode}
             </Text>
           </View>
         </View>

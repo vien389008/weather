@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, Line, Path, Rect } from "react-native-svg";
 
-const width = Dimensions.get("window").width - 40;
+const width = Dimensions.get("window").width - 60;
 const height = 86;
 const horizonY = 80; // đường chân trời
 const amplitude = 55; // độ cao quỹ đạo

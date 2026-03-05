@@ -35,7 +35,7 @@ export default function LunarCard({ days }: any) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#F5F6F8",
+    backgroundColor: "#FFF",
     borderRadius: 16,
     padding: 16,
     marginTop: 16,
