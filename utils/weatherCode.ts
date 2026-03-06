@@ -1,68 +1,111 @@
-export const getWeatherIcon = (code: number) => {
+import { weatherIcons } from "./weatherIcons";
+
+export const getWeatherIcon = (code: number, isDay: boolean = true) => {
   switch (code) {
     case 0:
-      return "☀️"; // Clear sky
+      return isDay ? "☀️" : "🌙";
 
     case 1:
-      return "🌤"; // Mainly clear
+      return isDay ? "🌤" : "🌙";
 
     case 2:
-      return "⛅"; // Partly cloudy
+      return isDay ? "⛅" : "🌙";
 
     case 3:
-      return "☁️"; // Overcast
+      return "☁️";
 
     case 45:
     case 48:
-      return "🌫"; // Fog
+      return "🌫";
 
     case 51:
     case 53:
     case 55:
-      return "🌦"; // Drizzle
+      return "🌦";
 
     case 56:
     case 57:
-      return "🌧"; // Freezing drizzle
+      return "🌧";
 
     case 61:
     case 63:
     case 65:
-      return "🌧"; // Rain
+      return "🌧";
 
     case 66:
     case 67:
-      return "🌧❄️"; // Freezing rain
+      return "🌧❄️";
 
     case 71:
     case 73:
     case 75:
-      return "❄️"; // Snow fall
+      return "❄️";
 
     case 77:
-      return "🌨"; // Snow grains
+      return "🌨";
 
     case 80:
     case 81:
     case 82:
-      return "🌦"; // Rain showers
+      return "🌦";
 
     case 85:
     case 86:
-      return "🌨"; // Snow showers
+      return "🌨";
 
     case 95:
-      return "⛈"; // Thunderstorm
+      return "⛈";
 
     case 96:
     case 99:
-      return "⛈🌨"; // Thunderstorm with hail
+      return "⛈🌨";
 
     default:
-      return "☁️";
+      return isDay ? "☀️" : "🌙";
   }
 };
+export const getWeatherIconHome = (code: number, isDay: boolean = true) => {
+  switch (code) {
+    case 0:
+      return isDay ? weatherIcons.sun : weatherIcons.moon;
 
+    case 1:
+      return isDay ? weatherIcons["cloud-sun"] : weatherIcons["cloud-moon"];
+
+    case 2:
+      return isDay ? weatherIcons["cloud-sun"] : weatherIcons["cloud-moon"];
+
+    case 3:
+      return weatherIcons.cloud;
+
+    case 45:
+    case 48:
+      return weatherIcons.fog;
+
+    case 51:
+    case 53:
+    case 55:
+      return weatherIcons.rain;
+
+    case 61:
+    case 63:
+    case 65:
+      return weatherIcons.rain;
+
+    case 71:
+    case 73:
+    case 75:
+      return weatherIcons.snow;
+
+    case 95:
+    case 96:
+    case 99:
+      return weatherIcons.storm;
+
+    default:
+      return isDay ? weatherIcons.sun : weatherIcons.moon;
+  }
+};
 export const getWeatherDescription = (code: number) => {
   switch (code) {
     case 0:

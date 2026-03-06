@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginTop: 16,
-    marginBottom: 60,
+    marginBottom: 160,
   },
 
   header: {

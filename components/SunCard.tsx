@@ -1,10 +1,10 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Line, Path, Rect } from "react-native-svg";
+import Svg, { Circle, Line, Path } from "react-native-svg";
 
-const width = Dimensions.get("window").width - 60;
-const height = 86;
-const horizonY = 80; // đường chân trời
-const amplitude = 55; // độ cao quỹ đạo
+const width = Dimensions.get("window").width - 70;
+const height = 90;
+const horizonY = 80;
+const amplitude = 55;
 
 function formatTime(d: Date) {
   return d.toTimeString().slice(0, 5);
@@ -13,7 +13,7 @@ function formatTime(d: Date) {
 function dayLengthText(ms: number) {
   const h = Math.floor(ms / 3600000);
   const m = Math.floor((ms % 3600000) / 60000);
-  return `${h}giờ ${m}phút`;
+  return `${h} giờ ${m} phút`;
 }
 
 export default function SunCard({ weather }: any) {
@@ -28,15 +28,14 @@ export default function SunCard({ weather }: any) {
   const now = new Date();
 
   const dayMs = sunset.getTime() - sunrise.getTime();
-  const progress = (now.getTime() - sunrise.getTime()) / dayMs;
 
+  const progress = (now.getTime() - sunrise.getTime()) / dayMs;
   const safeProgress = Math.max(0, Math.min(1, progress));
 
   const sunX = width * safeProgress;
   const sunY = horizonY - Math.sin(safeProgress * Math.PI) * amplitude;
 
   const solarNoon = new Date(sunrise.getTime() + dayMs / 2);
-
   const solarNoonText = formatTime(solarNoon);
 
   const remainingMs = sunset.getTime() - now.getTime();
@@ -50,7 +49,7 @@ export default function SunCard({ weather }: any) {
     <View style={styles.card}>
       <Text style={styles.title}>Bình minh và hoàng hôn</Text>
 
-      {/* Top times */}
+      {/* Top time */}
       <View style={styles.topRow}>
         <View>
           <Text style={styles.label}>Bình minh</Text>
@@ -63,50 +62,56 @@ export default function SunCard({ weather }: any) {
         </View>
       </View>
 
+      {/* Sun path */}
       <Svg width={width} height={height}>
-        {/* Night background */}
-        <Rect x="0" y={horizonY} width={width} height={2} fill="#bbb" />
-
-        {/* Daylight triangle */}
-        <Path
-          d={`M0 ${horizonY}
-              L ${sunX} ${horizonY}
-              L ${sunX} ${sunY}
-              Z`}
-          fill="#f6c76e"
-          opacity="0.7"
-        />
-
         {/* Horizon */}
         <Line
           x1="0"
           y1={horizonY}
           x2={width}
           y2={horizonY}
-          stroke="#bbb"
-          strokeWidth="1"
+          stroke="#cfcfcf"
+          strokeWidth="2"
         />
 
-        {/* Sun orbit */}
-        <Path d={path} stroke="#bdbdbd" strokeWidth="2" fill="none" />
+        {/* Orbit */}
+        <Path d={path} stroke="#cfcfcf" strokeWidth="2" fill="none" />
+
+        {/* Daylight area */}
+        <Path
+          d={`M0 ${horizonY}
+              Q ${sunX / 2} ${horizonY - amplitude * safeProgress}
+              ${sunX} ${sunY}
+              L ${sunX} ${horizonY}
+              Z`}
+          fill="#F6C76E"
+          opacity="0.6"
+        />
 
         {/* Sun */}
-        <Circle cx={sunX} cy={sunY} r="10" fill="#FFD54F" />
+        <Circle
+          cx={sunX}
+          cy={sunY}
+          r="9"
+          fill="#FFD54F"
+          stroke="#fff"
+          strokeWidth="2"
+        />
       </Svg>
 
       {/* Bottom info */}
       <View style={styles.bottomRow}>
-        <View>
+        <View style={styles.bottomItem}>
           <Text style={styles.bottomLabel}>Lúc bình minh</Text>
           <Text style={styles.bottomValue}>{sunriseText}</Text>
         </View>
 
-        <View>
+        <View style={styles.bottomItem}>
           <Text style={styles.bottomLabel}>Ban ngày</Text>
           <Text style={styles.bottomValue}>{solarNoonText}</Text>
         </View>
 
-        <View>
+        <View style={styles.bottomItem}>
           <Text style={styles.bottomLabel}>Trời tối</Text>
           <Text style={styles.bottomValue}>{sunsetText}</Text>
         </View>
@@ -127,47 +132,55 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFF",
     borderRadius: 12,
-    padding: 15,
-    marginTop: 15,
+    padding: 16,
   },
 
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
+    fontSize: 17,
+    fontWeight: "600",
+    marginBottom: 14,
   },
 
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 12,
   },
 
   label: {
     color: "#888",
+    fontSize: 13,
   },
 
   time: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 22,
+    fontWeight: "700",
+    marginTop: 2,
   },
 
   bottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
+    marginTop: 14,
+  },
+
+  bottomItem: {
+    alignItems: "center",
   },
 
   bottomLabel: {
-    color: "#666",
+    color: "#777",
+    fontSize: 12,
   },
 
   bottomValue: {
-    fontWeight: "bold",
+    fontWeight: "700",
+    marginTop: 2,
   },
 
   info: {
     marginTop: 8,
     color: "#444",
+    fontSize: 13,
   },
 });

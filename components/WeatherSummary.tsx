@@ -10,7 +10,7 @@ export default function WeatherSummary({ weather }: any) {
 
   const todayCode =
     weather.daily.weathercode[0] ?? weather.current_weather.weathercode;
-
+  const is_day = weather.daily.is_day?.[0] ?? weather.current_weather.is_day;
   const tempMax = weather.daily.temperature_2m_max?.[0];
   const tempMin = weather.daily.temperature_2m_min?.[0];
 
@@ -21,8 +21,7 @@ export default function WeatherSummary({ weather }: any) {
     <Pressable style={styles.card} onPress={() => setOpen(!open)}>
       {/* TOP ROW */}
       <View style={styles.row}>
-        <Text style={styles.icon}>{getWeatherIcon(todayCode)}</Text>
-
+        <Text style={styles.icon}>{getWeatherIcon(todayCode, is_day)}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.date}>
             {formatDateTitle(weather.daily.time[0])}

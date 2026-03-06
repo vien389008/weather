@@ -4,7 +4,7 @@ import { getMoonIcon } from "../utils/moonIcon";
 export default function LunarCard({ days }: any) {
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Lịch âm</Text>
+      <Text style={styles.title}>Chu kỳ mặt trăng</Text>
 
       <View style={styles.week}>
         {["T.2", "T.3", "T.4", "T.5", "T.6", "T.7", "CN"].map((d) => (

@@ -1,7 +1,9 @@
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { getWeatherDescription, getWeatherIcon } from "../utils/weatherCode";
-
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  getWeatherDescription,
+  getWeatherIconHome,
+} from "../utils/weatherCode";
 type Props = {
   weather: any;
   locationName?: string;
@@ -9,9 +11,26 @@ type Props = {
 
 export default function CurrentWeather({ weather, locationName }: Props) {
   if (!weather) return null;
+
   const temp = Math.round(weather.current_weather.temperature);
   const code = weather.current_weather.weathercode;
-  const windseed = weather.current_weather.windspeed;
+  const isDay = weather.current_weather.is_day === 1;
+
+  const feelsLike = Math.round(weather.hourly.apparent_temperature[0]);
+  const max = Math.round(weather.daily.temperature_2m_max[0]);
+  const min = Math.round(weather.daily.temperature_2m_min[0]);
+
+  const now = new Date();
+
+  const weekday = now.toLocaleDateString("vi-VN", {
+    weekday: "short",
+  });
+
+  const time = now.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   const handlePress = () => {
     router.push({
       pathname: "/weather-detail",
@@ -25,30 +44,27 @@ export default function CurrentWeather({ weather, locationName }: Props) {
   return (
     <Pressable onPress={handlePress}>
       <View style={styles.card}>
-        <View>
-          <Text style={styles.status}>{getWeatherDescription(code)}</Text>
+        {/* LEFT */}
+        <View style={styles.left}>
+          <Text style={styles.temp}>{temp}°</Text>
+          <Text style={styles.desc}>{getWeatherDescription(code)}</Text>
 
-          <Text style={styles.temp}>
-            {temp}
-            {weather.current_weather_units.temperature}
+          <Text style={styles.location}>{locationName}</Text>
+
+          <Text style={styles.minmax}>
+            {max}° / {min}° Cảm giác như {feelsLike}°
           </Text>
 
-          <Text style={styles.feel}>
-            Cảm giác như {temp}
-            {weather.current_weather_units.temperature}
+          <Text style={styles.time}>
+            {weekday}, {time}
           </Text>
         </View>
 
-        <View style={styles.right}>
-          <Text style={styles.icon}>{getWeatherIcon(code)}</Text>
-
-          <Text style={styles.uv}>
-            Gió: {windseed}
-            {weather.current_weather_units.windspeed}
-          </Text>
-
-          {/* <Text style={styles.spf}>SPF 6-10</Text> */}
-        </View>
+        {/* RIGHT */}
+        <Image
+          source={getWeatherIconHome(code, isDay)}
+          style={[styles.imageWeather, { width: 200, height: 200 }]}
+        />
       </View>
     </Pressable>
   );
@@ -56,50 +72,54 @@ export default function CurrentWeather({ weather, locationName }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#69b6d6",
-    borderRadius: 14,
-    padding: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    padding: 20,
   },
-
-  status: {
-    fontSize: 18,
-    color: "#fff",
-    marginBottom: 6,
+  imageWeather: {
+    position: "absolute",
+    right: -16,
   },
-
-  temp: {
-    fontSize: 60,
-    fontWeight: "700",
-    color: "#000",
-    lineHeight: 64,
-  },
-
-  feel: {
-    color: "#fff",
-    fontSize: 15,
-    marginTop: 4,
+  left: {
+    flex: 1,
   },
 
   right: {
+    justifyContent: "center",
     alignItems: "center",
   },
 
-  icon: {
-    fontSize: 32,
-    marginBottom: 4,
+  temp: {
+    fontSize: 72,
+    fontWeight: "200",
+    color: "white",
   },
 
-  uv: {
-    color: "#fff",
+  desc: {
+    fontSize: 20,
+    color: "white",
+    marginTop: 4,
+  },
+
+  location: {
+    fontSize: 18,
+    color: "white",
+    marginTop: 12,
+  },
+
+  minmax: {
     fontSize: 14,
+    color: "rgba(255,255,255,0.8)",
+    marginTop: 4,
   },
 
-  spf: {
-    color: "#fff",
-    fontSize: 13,
+  time: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.7)",
     marginTop: 2,
+  },
+
+  icon: {
+    fontSize: 80,
   },
 });

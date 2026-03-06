@@ -104,8 +104,9 @@ export default function WeatherHourlyList({ weather }: any) {
             >
               <Text style={styles.time}>{formatHour(hour.time)}</Text>
 
-              <Text style={styles.icon}>{getWeatherIcon(hour.code)}</Text>
-
+              <Text style={styles.icon}>
+                {getWeatherIcon(hour.code, hour.isDay)}
+              </Text>
               <Text style={styles.temp}>{Math.round(hour.temp)}°</Text>
 
               <Text style={styles.arrow}>
