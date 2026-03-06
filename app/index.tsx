@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   menuIcon: {
     fontSize: 32,
     color: "#fff",
-    marginBottom: 10,
+    marginVertical: 10,
   },
 
   location: {

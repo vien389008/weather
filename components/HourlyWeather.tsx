@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    fontSize: 22,
+    fontSize: 20,
     marginVertical: 4,
   },
 

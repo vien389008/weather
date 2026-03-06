@@ -20,49 +20,106 @@ export default function useWeather() {
   const lastFetchRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!weather) loadWeather();
+    if (!weather) {
+      loadWeather();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const getCoords = async () => {
     if (coords) return coords;
 
-    const { status } = await Location.requestForegroundPermissionsAsync();
+    try {
+      // kiểm tra quyền trước
+      const permission = await Location.getForegroundPermissionsAsync();
+      let status = permission.status;
 
-    if (status !== "granted") {
+      if (status !== "granted") {
+        const request = await Location.requestForegroundPermissionsAsync();
+        status = request.status;
+      }
+
+      if (status !== "granted") {
+        const fallback = { lat: 21.0285, lon: 105.8542 };
+        setCoords(fallback);
+        setLocationName("Hà Nội");
+        return fallback;
+      }
+
+      // ⚡ lấy vị trí cached trước (rất nhanh)
+      const last = await Location.getLastKnownPositionAsync();
+
+      if (last) {
+        const result = {
+          lat: last.coords.latitude,
+          lon: last.coords.longitude,
+        };
+
+        setCoords(result);
+
+        // reverse geocode chạy async để không block UI
+        setTimeout(() => {
+          Location.reverseGeocodeAsync({
+            latitude: result.lat,
+            longitude: result.lon,
+          }).then((reverse) => {
+            if (reverse.length > 0) {
+              const place = reverse[0];
+
+              const name =
+                place.subregion && place.region
+                  ? `${place.subregion}, ${place.region}`
+                  : place.region || "Việt Nam";
+
+              setLocationName(name);
+            }
+          });
+        }, 300);
+
+        return result;
+      }
+
+      // fallback nếu không có cached location
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Low,
+      });
+
+      const lat = location.coords.latitude;
+      const lon = location.coords.longitude;
+
+      const result = { lat, lon };
+
+      setCoords(result);
+
+      setTimeout(() => {
+        Location.reverseGeocodeAsync({
+          latitude: lat,
+          longitude: lon,
+        }).then((reverse) => {
+          if (reverse.length > 0) {
+            const place = reverse[0];
+
+            const name =
+              place.subregion && place.region
+                ? `${place.subregion}, ${place.region}`
+                : place.region || "Việt Nam";
+
+            setLocationName(name);
+          }
+        });
+      }, 300);
+
+      return result;
+    } catch (err) {
+      console.log("Location error:", err);
+
       const fallback = { lat: 21.0285, lon: 105.8542 };
       setCoords(fallback);
       setLocationName("Hà Nội");
+
       return fallback;
     }
-
-    const location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Low,
-    });
-
-    const lat = location.coords.latitude;
-    const lon = location.coords.longitude;
-
-    const result = { lat, lon };
-
-    setCoords(result);
-
-    Location.reverseGeocodeAsync({
-      latitude: lat,
-      longitude: lon,
-    }).then((reverse) => {
-      if (reverse.length > 0) {
-        const place = reverse[0];
-
-        const name =
-          place.subregion && place.region
-            ? `${place.subregion}, ${place.region}`
-            : place.region || "Việt Nam";
-
-        setLocationName(name);
-      }
-    });
-
-    return result;
   };
 
   const loadWeather = async (force = false) => {
@@ -77,19 +134,24 @@ export default function useWeather() {
       return;
     }
 
-    const location = await getCoords();
-    const { lat, lon } = location;
+    try {
+      const { lat, lon } = await getCoords();
 
-    const [weatherData, air] = await Promise.all([
-      getWeather(lat, lon),
-      getAirQuality(lat, lon),
-    ]);
+      // ⚡ load weather trước
+      const weatherData = await getWeather(lat, lon);
+      setWeather(weatherData);
 
-    setWeather(weatherData);
-    setPm25(air);
+      // ⚡ air quality chạy async
+      getAirQuality(lat, lon)
+        .then((air) => setPm25(air))
+        .catch(() => setPm25(null));
 
-    lastFetchRef.current = now;
-    setLoading(false);
+      lastFetchRef.current = now;
+    } catch (err) {
+      console.log("Weather error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
