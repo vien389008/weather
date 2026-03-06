@@ -1,11 +1,11 @@
 import { useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import WeatherDayTabs from "../components/WeatherDayTabs";
 import WeatherHeader from "../components/WeatherHeader";
 import WeatherHourlyList from "../components/WeatherHourlyList";
 import WeatherSummary from "../components/WeatherSummary";
-
 type WeatherData = {
   hourly: {
     time: string[];
@@ -25,7 +25,7 @@ type WeatherData = {
 
 export default function WeatherDetail() {
   const params = useLocalSearchParams();
-
+  const [activeIndex, setActiveIndex] = useState(0);
   const weather: WeatherData = JSON.parse(params.weather as string);
   const locationName = params.locationName as string;
 
@@ -33,12 +33,16 @@ export default function WeatherDetail() {
     <SafeAreaView style={styles.safeArea}>
       <WeatherHeader locationName={locationName} />
 
-      <WeatherDayTabs tabs={weather.daily.time.slice(0, 7)} />
+      <WeatherDayTabs
+        tabs={weather.daily.time.slice(0, 14)}
+        activeIndex={activeIndex}
+        onChange={setActiveIndex}
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
-        <WeatherSummary weather={weather} />
+        <WeatherSummary weather={weather} dayIndex={activeIndex} />
 
-        <WeatherHourlyList weather={weather} />
+        <WeatherHourlyList weather={weather} dayIndex={activeIndex} />
       </ScrollView>
     </SafeAreaView>
   );

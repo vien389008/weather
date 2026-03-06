@@ -21,7 +21,7 @@ export default function CurrentWeather({ weather, locationName }: Props) {
   const min = Math.round(weather.daily.temperature_2m_min[0]);
 
   const now = new Date();
-
+  console.log("zzz:" + locationName);
   const weekday = now.toLocaleDateString("vi-VN", {
     weekday: "short",
   });

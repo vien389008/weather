@@ -4,7 +4,7 @@ export const getAQILevel = (pm25: number) => {
   if (pm25 <= 35) return { aqi: 100, text: "Trung bình", color: "#f1c40f" };
 
   if (pm25 <= 55)
-    return { aqi: 150, text: "Không tốt cho nhạy cảm", color: "#f39c12" };
+    return { aqi: 150, text: "Không tốt cho nhóm nhạy cảm", color: "#f39c12" };
 
   if (pm25 <= 150) return { aqi: 200, text: "Rất có hại", color: "#e74c3c" };
 

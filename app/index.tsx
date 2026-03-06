@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -22,11 +22,17 @@ import HourlyWeather from "../components/HourlyWeather";
 import LunarCard from "../components/LunarCard";
 import SunCard from "../components/SunCard";
 
+import { useFocusEffect } from "@react-navigation/native";
 import useLunar from "../hooks/useLunar";
 import useWeather from "../hooks/useWeather";
-
 export default function HomeScreen() {
   const { weather, locationName, pm25, loading, loadWeather } = useWeather();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadWeather();
+    }, []),
+  );
   const lunarDays = useLunar();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -73,6 +79,7 @@ export default function HomeScreen() {
 
       <ScrollView
         scrollEnabled={!menuOpen}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -87,13 +94,26 @@ export default function HomeScreen() {
             {locationName}
           </Text>
 
-          <CurrentWeather weather={weather} />
+          <CurrentWeather weather={weather} locationName={locationName} />
+
           <HourlyWeather weather={weather} />
+
           <DailyWeather weather={weather} />
+
           <SunCard weather={weather} />
+
           <LunarCard days={lunarDays} />
 
-          {pm25 && <AirQualityCard pm25={pm25} />}
+          {/* FIX PM25 */}
+          {pm25 != null ? (
+            <AirQualityCard pm25={pm25} />
+          ) : (
+            <View style={styles.aqiLoading}>
+              <Text style={styles.aqiText}>
+                Đang tải chất lượng không khí...
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -106,6 +126,11 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: "#86bafc",
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
   },
 
   homePadding: {
@@ -123,6 +148,18 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#fff",
     marginBottom: 10,
+  },
+
+  aqiLoading: {
+    marginTop: 10,
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.3)",
+  },
+
+  aqiText: {
+    color: "#fff",
+    fontSize: 14,
   },
 
   center: {

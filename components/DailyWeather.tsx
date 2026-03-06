@@ -16,16 +16,16 @@ function getWindArrow(deg: number) {
 export default function DailyWeather({ weather }: any) {
   if (!weather) return null;
 
-  const days = weather.daily.time.slice(0, 7);
-  const max = weather.daily.temperature_2m_max.slice(0, 7);
-  const min = weather.daily.temperature_2m_min.slice(0, 7);
-  const codes = weather.daily.weathercode.slice(0, 7);
+  const days = weather.daily.time.slice(0, 14);
+  const max = weather.daily.temperature_2m_max.slice(0, 14);
+  const min = weather.daily.temperature_2m_min.slice(0, 14);
+  const codes = weather.daily.weathercode.slice(0, 14);
   const is_day = true;
-  const rainProb = weather.daily.precipitation_probability_mean?.slice(0, 7);
-  const rainSum = weather.daily.precipitation_sum?.slice(0, 7);
+  const rainProb = weather.daily.precipitation_probability_mean?.slice(0, 14);
+  const rainSum = weather.daily.precipitation_sum?.slice(0, 14);
 
-  const windSpeed = weather.daily.windspeed_10m_max?.slice(0, 7);
-  const windDir = weather.daily.winddirection_10m_dominant?.slice(0, 7);
+  const windSpeed = weather.daily.windspeed_10m_max?.slice(0, 14);
+  const windDir = weather.daily.winddirection_10m_dominant?.slice(0, 14);
 
   return (
     <View style={styles.container}>

@@ -1,10 +1,18 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Line, Path } from "react-native-svg";
+import Svg, {
+  Circle,
+  ClipPath,
+  Defs,
+  Line,
+  Path,
+  Rect,
+} from "react-native-svg";
 
 const width = Dimensions.get("window").width - 70;
-const height = 90;
-const horizonY = 80;
-const amplitude = 55;
+const height = 110;
+const horizonY = 90;
+const amplitude = 90;
+const sunRadius = 10;
 
 function formatTime(d: Date) {
   return d.toTimeString().slice(0, 5);
@@ -32,7 +40,8 @@ export default function SunCard({ weather }: any) {
   const progress = (now.getTime() - sunrise.getTime()) / dayMs;
   const safeProgress = Math.max(0, Math.min(1, progress));
 
-  const sunX = width * safeProgress;
+  const sunX = sunRadius + (width - sunRadius * 2) * safeProgress;
+
   const sunY = horizonY - Math.sin(safeProgress * Math.PI) * amplitude;
 
   const solarNoon = new Date(sunrise.getTime() + dayMs / 2);
@@ -40,16 +49,22 @@ export default function SunCard({ weather }: any) {
 
   const remainingMs = sunset.getTime() - now.getTime();
 
-  const path = `M0 ${horizonY}
-    Q ${width / 4} ${horizonY - amplitude}
-    ${width / 2} ${horizonY - amplitude}
-    T ${width} ${horizonY}`;
+  const arcPath = `M0 ${horizonY}
+  Q ${width / 2} ${horizonY - amplitude}
+  ${width} ${horizonY}`;
+
+  const fillPath = `M0 ${horizonY}
+  Q ${width / 2} ${horizonY - amplitude}
+  ${width} ${horizonY}
+  L ${width} ${horizonY}
+  L 0 ${horizonY}
+  Z`;
 
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Bình minh và hoàng hôn</Text>
 
-      {/* Top time */}
+      {/* top time */}
       <View style={styles.topRow}>
         <View>
           <Text style={styles.label}>Bình minh</Text>
@@ -62,67 +77,62 @@ export default function SunCard({ weather }: any) {
         </View>
       </View>
 
-      {/* Sun path */}
       <Svg width={width} height={height}>
-        {/* Horizon */}
+        {/* horizon */}
         <Line
           x1="0"
           y1={horizonY}
           x2={width}
           y2={horizonY}
-          stroke="#cfcfcf"
+          stroke="#d8d8d8"
           strokeWidth="2"
         />
 
-        {/* Orbit */}
-        <Path d={path} stroke="#cfcfcf" strokeWidth="2" fill="none" />
+        {/* clip để fill tới vị trí mặt trời */}
+        <Defs>
+          <ClipPath id="sunClip">
+            <Rect x="0" y="0" width={sunX} height={height} />
+          </ClipPath>
+        </Defs>
 
-        {/* Daylight area */}
+        {/* daylight fill */}
         <Path
-          d={`M0 ${horizonY}
-              Q ${sunX / 2} ${horizonY - amplitude * safeProgress}
-              ${sunX} ${sunY}
-              L ${sunX} ${horizonY}
-              Z`}
+          d={fillPath}
           fill="#F6C76E"
-          opacity="0.6"
+          opacity="0.65"
+          clipPath="url(#sunClip)"
         />
 
-        {/* Sun */}
+        {/* sun orbit */}
+        <Path d={arcPath} stroke="#d0d0d0" strokeWidth="2" fill="none" />
+
+        {/* sun */}
         <Circle
           cx={sunX}
           cy={sunY}
-          r="9"
+          r={sunRadius}
           fill="#FFD54F"
           stroke="#fff"
-          strokeWidth="2"
+          strokeWidth="3"
         />
       </Svg>
 
-      {/* Bottom info */}
+      {/* bottom info */}
       <View style={styles.bottomRow}>
         <View style={styles.bottomItem}>
-          <Text style={styles.bottomLabel}>Lúc bình minh</Text>
-          <Text style={styles.bottomValue}>{sunriseText}</Text>
-        </View>
-
-        <View style={styles.bottomItem}>
-          <Text style={styles.bottomLabel}>Ban ngày</Text>
+          <Text style={styles.bottomLabel}>Thời điểm giữa trưa</Text>
           <Text style={styles.bottomValue}>{solarNoonText}</Text>
-        </View>
-
-        <View style={styles.bottomItem}>
-          <Text style={styles.bottomLabel}>Trời tối</Text>
-          <Text style={styles.bottomValue}>{sunsetText}</Text>
         </View>
       </View>
 
       <Text style={styles.info}>Độ dài của ngày {dayLengthText(dayMs)}</Text>
 
-      {remainingMs > 0 && (
+      {remainingMs > 0 ? (
         <Text style={styles.info}>
           Thời gian sáng còn lại {dayLengthText(remainingMs)}
         </Text>
+      ) : (
+        <Text style={styles.info}>Mặt trời đã lặn</Text>
       )}
     </View>
   );
@@ -131,37 +141,36 @@ export default function SunCard({ weather }: any) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFF",
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 18,
   },
 
   title: {
     fontSize: 17,
     fontWeight: "600",
-    marginBottom: 14,
+    marginBottom: 16,
   },
 
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 14,
   },
 
   label: {
     color: "#888",
-    fontSize: 13,
+    fontSize: 12,
   },
 
   time: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "700",
     marginTop: 2,
   },
 
   bottomRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 14,
+    justifyContent: "center",
   },
 
   bottomItem: {
@@ -169,17 +178,18 @@ const styles = StyleSheet.create({
   },
 
   bottomLabel: {
-    color: "#777",
+    color: "#888",
     fontSize: 12,
   },
 
   bottomValue: {
-    fontWeight: "700",
-    marginTop: 2,
+    fontSize: 15,
+    fontWeight: "600",
+    marginTop: 3,
   },
 
   info: {
-    marginTop: 8,
+    marginTop: 10,
     color: "#444",
     fontSize: 13,
   },

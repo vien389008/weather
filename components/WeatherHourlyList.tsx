@@ -10,77 +10,85 @@ import {
 
 import { getWeatherIcon } from "../utils/weatherCode";
 
-export default function WeatherHourlyList({ weather }: any) {
+export default function WeatherHourlyList({ weather, dayIndex = 0 }: any) {
   const [showAll, setShowAll] = useState(false);
   const [activeHour, setActiveHour] = useState<string | null>(null);
 
   const now = new Date();
   const currentHour = now.getHours();
-  const today = now.toISOString().slice(0, 10);
+
+  const selectedDate = weather.daily.time[dayIndex];
+  const sunrise = weather.daily.sunrise?.[dayIndex];
+  const sunset = weather.daily.sunset?.[dayIndex];
 
   const hours = useMemo(() => {
-    return weather.hourly.time
+    const list = weather.hourly.time
       .map((time: string, i: number) => ({
+        type: "hour",
         time,
 
-        // nhiệt độ
         temp: weather.hourly.temperature_2m?.[i],
         feelsLike: weather.hourly.apparent_temperature?.[i],
         dewPoint: weather.hourly.dewpoint_2m?.[i],
 
-        // trạng thái thời tiết
         code: weather.hourly.weathercode?.[i],
         isDay: weather.hourly.is_day?.[i],
 
-        // gió
         windSpeed: weather.hourly.windspeed_10m?.[i],
         windDirection: weather.hourly.winddirection_10m?.[i],
         windGust: weather.hourly.windgusts_10m?.[i],
-
-        // mưa / tuyết
+        uvIndex: weather.hourly.uv_index?.[i],
         precipitation: weather.hourly.precipitation?.[i],
-        rain: weather.hourly.rain?.[i],
-        snowfall: weather.hourly.snowfall?.[i],
-
-        // độ ẩm
         humidity: weather.hourly.relativehumidity_2m?.[i],
 
-        // mây
+        visibility: weather.hourly.visibility?.[i],
+        pressure: weather.hourly.pressure_msl?.[i],
         cloud: weather.hourly.cloudcover?.[i],
 
-        // tầm nhìn
-        visibility: weather.hourly.visibility?.[i],
-
-        // áp suất
-        pressure: weather.hourly.pressure_msl?.[i],
-
-        // UV
-        uvIndex: weather.hourly.uv_index?.[i],
-
-        // precipitation
         precipitation_pro: weather.hourly.precipitation_probability?.[i],
       }))
-      .filter((item: any) => item.time.startsWith(today));
-  }, [weather]);
+      .filter((item: any) => item.time.startsWith(selectedDate));
+
+    if (sunrise && sunrise.startsWith(selectedDate)) {
+      list.push({
+        type: "sunrise",
+        time: sunrise,
+      });
+    }
+
+    if (sunset && sunset.startsWith(selectedDate)) {
+      list.push({
+        type: "sunset",
+        time: sunset,
+      });
+    }
+
+    list.sort(
+      (a: any, b: any) =>
+        new Date(a.time).getTime() - new Date(b.time).getTime(),
+    );
+
+    return list;
+  }, [weather, selectedDate, sunrise, sunset]);
 
   const filteredHours = useMemo(() => {
     if (showAll) return hours;
 
-    return hours.filter((item: any) => {
-      const hour = new Date(item.time).getHours();
-      return hour >= currentHour;
-    });
-  }, [hours, showAll]);
+    if (dayIndex === 0) {
+      return hours.filter((item: any) => {
+        const hour = new Date(item.time).getHours();
+        return hour >= currentHour;
+      });
+    }
+
+    return hours;
+  }, [hours, showAll, dayIndex]);
 
   const toggleHour = (time: string) => {
-    if (activeHour === time) {
-      setActiveHour(null);
-    } else {
-      setActiveHour(time);
-    }
+    setActiveHour(activeHour === time ? null : time);
   };
 
-  const hasPrevious = currentHour > 0;
+  const hasPrevious = currentHour > 0 && dayIndex === 0;
 
   return (
     <View style={styles.card}>
@@ -93,11 +101,34 @@ export default function WeatherHourlyList({ weather }: any) {
       )}
 
       {filteredHours.map((hour: any, index: number) => {
+        const key = `${hour.type}-${hour.time}`;
+
+        if (hour.type === "sunrise") {
+          return (
+            <View key={key} style={styles.sunRow}>
+              <Ionicons name="sunny-outline" size={18} color="#f5a623" />
+              <Text style={styles.sunText}>
+                Bình minh {formatHour(hour.time)}
+              </Text>
+            </View>
+          );
+        }
+
+        if (hour.type === "sunset") {
+          return (
+            <View key={key} style={styles.sunRow}>
+              <Ionicons name="partly-sunny-outline" size={18} color="#f5a623" />
+              <Text style={styles.sunText}>
+                Hoàng hôn {formatHour(hour.time)}
+              </Text>
+            </View>
+          );
+        }
+
         const isOpen = activeHour === hour.time;
 
         return (
-          <View key={hour.time}>
-            {/* ROW */}
+          <View key={key}>
             <Pressable
               onPress={() => toggleHour(hour.time)}
               style={[styles.row, index > 0 && styles.border]}
@@ -107,6 +138,7 @@ export default function WeatherHourlyList({ weather }: any) {
               <Text style={styles.icon}>
                 {getWeatherIcon(hour.code, hour.isDay)}
               </Text>
+
               <Text style={styles.temp}>{Math.round(hour.temp)}°</Text>
 
               <Text style={styles.arrow}>
@@ -130,75 +162,56 @@ export default function WeatherHourlyList({ weather }: any) {
               />
             </Pressable>
 
-            {/* DETAIL */}
             {isOpen && (
               <View style={styles.detail}>
                 <View style={styles.detailGrid}>
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Mưa</Text>
-                    <Text style={styles.value}>
-                      {hour.precipitation ?? 0} mm
-                    </Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Độ ẩm</Text>
-                    <Text style={styles.value}>{hour.humidity ?? "--"}%</Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Cảm giác như</Text>
-                    <Text style={styles.value}>{hour.feelsLike ?? "--"}°</Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Chỉ số UV</Text>
-                    <Text style={styles.value}>{hour.uvIndex ?? "--"}</Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Tầm nhìn</Text>
-                    <Text style={styles.value}>
-                      {hour.visibility
-                        ? Math.round(hour.visibility / 1000)
-                        : "--"}{" "}
-                      km
-                    </Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Gió - giật</Text>
-                    <Text style={styles.value}>
-                      {hour.windGust ?? "--"} km/h
-                    </Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Điểm sương</Text>
-                    <Text style={styles.value}>{hour.dewPoint ?? "--"}°</Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Mây</Text>
-                    <Text style={styles.value}>{hour.cloud ?? "--"}%</Text>
-                  </View>
-
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Áp suất</Text>
-                    <Text style={styles.value}>{hour.pressure ?? "--"} mb</Text>
-                  </View>
-                  <View style={styles.detailItem}>
-                    <Text style={styles.label}>Xác xuất mưa</Text>
-                    <Text style={styles.value}>
-                      {hour.precipitation_pro ?? "--"} %
-                    </Text>
-                  </View>
+                  <Detail label="Mưa" value={`${hour.precipitation ?? 0} mm`} />
+                  <Detail label="Độ ẩm" value={`${hour.humidity ?? "--"}%`} />
+                  <Detail
+                    label="Cảm giác như"
+                    value={`${hour.feelsLike ?? "--"}°`}
+                  />
+                  <Detail label="Chỉ số UV" value={hour.uvIndex ?? "--"} />
+                  <Detail
+                    label="Tầm nhìn"
+                    value={
+                      hour.visibility
+                        ? `${Math.round(hour.visibility / 1000)} km`
+                        : "--"
+                    }
+                  />
+                  <Detail
+                    label="Gió - giật"
+                    value={`${hour.windGust ?? "--"} km/h`}
+                  />
+                  <Detail
+                    label="Điểm sương"
+                    value={`${hour.dewPoint ?? "--"}°`}
+                  />
+                  <Detail label="Mây" value={`${hour.cloud ?? "--"}%`} />
+                  <Detail
+                    label="Áp suất"
+                    value={`${hour.pressure ?? "--"} mb`}
+                  />
+                  <Detail
+                    label="Xác xuất mưa"
+                    value={`${hour.precipitation_pro ?? "--"} %`}
+                  />
                 </View>
               </View>
             )}
           </View>
         );
       })}
+    </View>
+  );
+}
+
+function Detail({ label, value }: any) {
+  return (
+    <View style={{ width: "33%", marginBottom: 12 }}>
+      <Text style={{ fontSize: 12, color: "#6f7f8d" }}>{label}</Text>
+      <Text style={{ fontSize: 14, fontWeight: "600" }}>{value}</Text>
     </View>
   );
 }
@@ -231,7 +244,22 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#e6e9ec",
   },
+  sunRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    backgroundColor: "#fff6e0",
+    borderTopWidth: 1,
+    borderColor: "#e6e9ec",
+  },
 
+  sunText: {
+    marginLeft: 6,
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#a87400",
+  },
   time: {
     width: 62,
     fontSize: 17,

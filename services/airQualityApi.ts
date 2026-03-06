@@ -3,6 +3,5 @@ export const getAirQuality = async (lat: number, lon: number) => {
 
   const res = await fetch(url);
   const data = await res.json();
-
   return data.hourly.pm2_5[0];
 };

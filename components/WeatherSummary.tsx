@@ -5,17 +5,19 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { getWeatherDescription, getWeatherIcon } from "../utils/weatherCode";
 import { formatDateTitle } from "../utils/weatherFormat";
 
-export default function WeatherSummary({ weather }: any) {
+export default function WeatherSummary({ weather, dayIndex = 0 }: any) {
   const [open, setOpen] = useState(false);
 
   const todayCode =
-    weather.daily.weathercode[0] ?? weather.current_weather.weathercode;
-  const is_day = weather.daily.is_day?.[0] ?? weather.current_weather.is_day;
-  const tempMax = weather.daily.temperature_2m_max?.[0];
-  const tempMin = weather.daily.temperature_2m_min?.[0];
+    weather.daily.weathercode[dayIndex] ?? weather.current_weather.weathercode;
 
-  const windMax = weather.daily.windspeed_10m_max?.[0];
-  const windMin = weather.daily.windspeed_10m_min?.[0];
+  const is_day =
+    weather.daily.is_day?.[dayIndex] ?? weather.current_weather.is_day;
+
+  const tempMax = weather.daily.temperature_2m_max?.[dayIndex];
+  const tempMin = weather.daily.temperature_2m_min?.[dayIndex];
+
+  const windMax = weather.daily.windspeed_10m_max?.[dayIndex];
   const windCode = weather.daily_units.windspeed_10m_max;
   return (
     <Pressable style={styles.card} onPress={() => setOpen(!open)}>
@@ -24,7 +26,7 @@ export default function WeatherSummary({ weather }: any) {
         <Text style={styles.icon}>{getWeatherIcon(todayCode, is_day)}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.date}>
-            {formatDateTitle(weather.daily.time[0])}
+            {formatDateTitle(weather.daily.time[dayIndex])}
           </Text>
 
           <Text style={styles.main}>{getWeatherDescription(todayCode)}</Text>
@@ -54,7 +56,7 @@ export default function WeatherSummary({ weather }: any) {
             <Ionicons name="navigate-outline" size={20} color="#2f97d8" />
 
             <Text style={styles.extraText}>
-              Tốc độ gió {Math.round(windMin)} - {Math.round(windMax)}
+              Tốc độ gió {Math.round(windMax)}
               {windCode}
             </Text>
           </View>

@@ -1,7 +1,11 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { formatTabLabel } from "../utils/weatherFormat";
-
-export default function WeatherDayTabs({ tabs }: any) {
+type Props = {
+  tabs: string[];
+  activeIndex: number;
+  onChange: (index: number) => void;
+};
+export default function WeatherDayTabs({ tabs, activeIndex, onChange }: Props) {
   return (
     <View style={styles.dayTabs}>
       <ScrollView
@@ -12,7 +16,8 @@ export default function WeatherDayTabs({ tabs }: any) {
         {tabs.map((d: string, index: number) => (
           <Text
             key={d}
-            style={[styles.tabItem, index === 0 && styles.activeTab]}
+            onPress={() => onChange(index)}
+            style={[styles.tabItem, index === activeIndex && styles.activeTab]}
           >
             {formatTabLabel(d, index)}
           </Text>
