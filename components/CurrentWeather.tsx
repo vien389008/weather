@@ -1,9 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import {
-  getWeatherDescription,
-  getWeatherIconHome,
-} from "../utils/weatherCode";
+import LottieView from "lottie-react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { getWeatherDescription, getWeatherIcon } from "../utils/weatherCode";
 type Props = {
   weather: any;
   locationName?: string;
@@ -21,7 +20,6 @@ export default function CurrentWeather({ weather, locationName }: Props) {
   const min = Math.round(weather.daily.temperature_2m_min[0]);
 
   const now = new Date();
-  console.log("zzz:" + locationName);
   const weekday = now.toLocaleDateString("vi-VN", {
     weekday: "short",
   });
@@ -48,8 +46,11 @@ export default function CurrentWeather({ weather, locationName }: Props) {
         <View style={styles.left}>
           <Text style={styles.temp}>{temp}°</Text>
           <Text style={styles.desc}>{getWeatherDescription(code)}</Text>
-
-          <Text style={styles.location}>{locationName}</Text>
+          {/* LOCATION */}
+          <Text style={styles.location}>
+            <Ionicons name="location-outline" size={18} color="#fff" />{" "}
+            {locationName}
+          </Text>
 
           <Text style={styles.minmax}>
             {max}° / {min}° Cảm giác như {feelsLike}°
@@ -61,9 +62,12 @@ export default function CurrentWeather({ weather, locationName }: Props) {
         </View>
 
         {/* RIGHT */}
-        <Image
-          source={getWeatherIconHome(code, isDay)}
-          style={[styles.imageWeather, { width: 200, height: 200 }]}
+
+        <LottieView
+          source={getWeatherIcon(code, isDay)}
+          autoPlay
+          loop
+          style={[styles.lottieWeather, { width: 180, height: 180 }]}
         />
       </View>
     </Pressable>
@@ -75,8 +79,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 20,
+    backgroundColor: "#86bafc",
   },
-  imageWeather: {
+  lottieWeather: {
     position: "absolute",
     right: -16,
   },
@@ -102,7 +107,7 @@ const styles = StyleSheet.create({
   },
 
   location: {
-    fontSize: 18,
+    fontSize: 16,
     color: "white",
     marginTop: 12,
   },

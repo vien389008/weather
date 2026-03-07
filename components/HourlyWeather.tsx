@@ -1,10 +1,10 @@
 import { curveMonotoneX, line } from "d3-shape";
+import LottieView from "lottie-react-native";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import { formatHour } from "../utils/format";
 import { getWeatherIcon } from "../utils/weatherCode";
 import HumidityDrop from "./HumidityDrop";
-
 export default function HourlyWeather({ weather }: any) {
   if (!weather) return null;
 
@@ -66,7 +66,12 @@ export default function HourlyWeather({ weather }: any) {
                 <Text style={styles.time}>{formatHour(time)}</Text>
 
                 <Text style={styles.icon}>
-                  {getWeatherIcon(weatherCodes[i], is_day[i])}
+                  <LottieView
+                    source={getWeatherIcon(weatherCodes[i], is_day[i])}
+                    autoPlay
+                    loop
+                    style={{ width: 40, height: 40 }}
+                  />
                 </Text>
                 <Text style={styles.temp}>{Math.round(temperatures[i])}°</Text>
               </View>
@@ -114,7 +119,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#7C8EF8",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     marginVertical: 10,
     paddingLeft: 0,
     marginBottom: 16,

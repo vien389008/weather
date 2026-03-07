@@ -1,18 +1,14 @@
+import LottieView from "lottie-react-native";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import Svg, {
-  Circle,
-  ClipPath,
-  Defs,
-  Line,
-  Path,
-  Rect,
-} from "react-native-svg";
+import Svg, { ClipPath, Defs, Line, Path, Rect } from "react-native-svg";
 
 const width = Dimensions.get("window").width - 70;
 const height = 110;
+
 const horizonY = 90;
 const amplitude = 90;
-const sunRadius = 10;
+
+const sunSize = 36;
 
 function formatTime(d: Date) {
   return d.toTimeString().slice(0, 5);
@@ -40,9 +36,13 @@ export default function SunCard({ weather }: any) {
   const progress = (now.getTime() - sunrise.getTime()) / dayMs;
   const safeProgress = Math.max(0, Math.min(1, progress));
 
-  const sunX = sunRadius + (width - sunRadius * 2) * safeProgress;
+  const sunX = width * safeProgress;
 
-  const sunY = horizonY - Math.sin(safeProgress * Math.PI) * amplitude;
+  const t = safeProgress;
+  const y0 = horizonY;
+  const y1 = horizonY - amplitude;
+  const y2 = horizonY;
+  const sunY = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * y1 + t * t * y2;
 
   const solarNoon = new Date(sunrise.getTime() + dayMs / 2);
   const solarNoonText = formatTime(solarNoon);
@@ -77,45 +77,52 @@ export default function SunCard({ weather }: any) {
         </View>
       </View>
 
-      <Svg width={width} height={height}>
-        {/* horizon */}
-        <Line
-          x1="0"
-          y1={horizonY}
-          x2={width}
-          y2={horizonY}
-          stroke="#d8d8d8"
-          strokeWidth="2"
+      {/* chart */}
+      <View style={{ width, height }}>
+        <Svg width={width} height={height}>
+          {/* horizon */}
+          <Line
+            x1="0"
+            y1={horizonY}
+            x2={width}
+            y2={horizonY}
+            stroke="#E7C98B"
+            strokeWidth="2"
+          />
+
+          {/* clip daylight */}
+          <Defs>
+            <ClipPath id="sunClip">
+              <Rect x="0" y="0" width={sunX} height={height} />
+            </ClipPath>
+          </Defs>
+
+          {/* daylight fill */}
+          <Path
+            d={fillPath}
+            fill="#F6C76E"
+            opacity="0.65"
+            clipPath="url(#sunClip)"
+          />
+
+          {/* sun orbit */}
+          <Path d={arcPath} stroke="#E7C98B" strokeWidth="2" fill="none" />
+        </Svg>
+
+        {/* Lottie sun */}
+        <LottieView
+          source={require("../assets/weather/clear-day.json")}
+          autoPlay
+          loop
+          style={{
+            position: "absolute",
+            width: sunSize,
+            height: sunSize,
+            left: sunX - sunSize / 2,
+            top: sunY - sunSize / 2,
+          }}
         />
-
-        {/* clip để fill tới vị trí mặt trời */}
-        <Defs>
-          <ClipPath id="sunClip">
-            <Rect x="0" y="0" width={sunX} height={height} />
-          </ClipPath>
-        </Defs>
-
-        {/* daylight fill */}
-        <Path
-          d={fillPath}
-          fill="#F6C76E"
-          opacity="0.65"
-          clipPath="url(#sunClip)"
-        />
-
-        {/* sun orbit */}
-        <Path d={arcPath} stroke="#d0d0d0" strokeWidth="2" fill="none" />
-
-        {/* sun */}
-        <Circle
-          cx={sunX}
-          cy={sunY}
-          r={sunRadius}
-          fill="#FFD54F"
-          stroke="#fff"
-          strokeWidth="3"
-        />
-      </Svg>
+      </View>
 
       {/* bottom info */}
       <View style={styles.bottomRow}>

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
 import { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
 import {
   formatHour,
   toWindArrow,
@@ -135,10 +135,12 @@ export default function WeatherHourlyList({ weather, dayIndex = 0 }: any) {
             >
               <Text style={styles.time}>{formatHour(hour.time)}</Text>
 
-              <Text style={styles.icon}>
-                {getWeatherIcon(hour.code, hour.isDay)}
-              </Text>
-
+              <LottieView
+                source={getWeatherIcon(hour.code, hour.isDay)}
+                autoPlay
+                loop
+                style={{ width: 40, height: 40 }}
+              />
               <Text style={styles.temp}>{Math.round(hour.temp)}°</Text>
 
               <Text style={styles.arrow}>

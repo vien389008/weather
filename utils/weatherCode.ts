@@ -3,67 +3,64 @@ import { weatherIcons } from "./weatherIcons";
 export const getWeatherIcon = (code: number, isDay: boolean = true) => {
   switch (code) {
     case 0:
-      return isDay ? "☀️" : "🌙";
+      return isDay
+        ? require("../assets/weather/clear-day.json")
+        : require("../assets/weather/clear-night.json");
 
     case 1:
-      return isDay ? "🌤" : "🌙";
-
     case 2:
-      return isDay ? "⛅" : "🌙";
+      return isDay
+        ? require("../assets/weather/partly-cloudy-day.json")
+        : require("../assets/weather/clear-night.json");
 
     case 3:
-      return "☁️";
+      return isDay
+        ? require("../assets/weather/cloudy.json")
+        : require("../assets/weather/partly-cloudy-night.json");
 
     case 45:
     case 48:
-      return "🌫";
+      return require("../assets/weather/fog.json");
 
     case 51:
     case 53:
     case 55:
-      return "🌦";
+    case 80:
+    case 81:
+    case 82:
+      return require("../assets/weather/rain.json");
 
     case 56:
     case 57:
-      return "🌧";
-
     case 61:
     case 63:
     case 65:
-      return "🌧";
+      return require("../assets/weather/rain.json");
 
     case 66:
     case 67:
-      return "🌧❄️";
+      return require("../assets/weather/sleet.json");
 
     case 71:
     case 73:
     case 75:
-      return "❄️";
-
     case 77:
-      return "🌨";
-
-    case 80:
-    case 81:
-    case 82:
-      return "🌦";
-
     case 85:
     case 86:
-      return "🌨";
+      return require("../assets/weather/snow.json");
 
     case 95:
-      return "⛈";
-
     case 96:
     case 99:
-      return "⛈🌨";
+      return require("../assets/weather/thunderstorms.json");
 
     default:
-      return isDay ? "☀️" : "🌙";
+      return isDay
+        ? require("../assets/weather/clear-day.json")
+        : require("../assets/weather/clear-night.json");
   }
 };
+
 export const getWeatherIconHome = (code: number, isDay: boolean = true) => {
   switch (code) {
     case 0:

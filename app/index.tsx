@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -10,7 +10,6 @@ import {
   View,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -25,20 +24,35 @@ import SunCard from "../components/SunCard";
 import { useFocusEffect } from "@react-navigation/native";
 import useLunar from "../hooks/useLunar";
 import useWeather from "../hooks/useWeather";
+
 export default function HomeScreen() {
   const { weather, locationName, pm25, loading, loadWeather } = useWeather();
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadWeather();
-    }, []),
-  );
   const lunarDays = useLunar();
 
   const [refreshing, setRefreshing] = useState(false);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(-260)).current;
+
+  const [locations, setLocations] = useState<any[]>([]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadWeather();
+    }, []),
+  );
+
+  useEffect(() => {
+    if (weather && locationName) {
+      setLocations([
+        {
+          name: locationName,
+          temp: weather?.current?.temperature_2m ?? "--",
+        },
+      ]);
+    }
+  }, [weather, locationName]);
 
   const openMenu = () => {
     setMenuOpen(true);
@@ -85,26 +99,27 @@ export default function HomeScreen() {
         }
       >
         <View style={styles.homePadding}>
+          {/* MENU BUTTON */}
           <Pressable onPress={openMenu}>
             <Text style={styles.menuIcon}>☰</Text>
           </Pressable>
 
-          <Text style={styles.location}>
-            <Ionicons name="location-outline" size={18} color="#fff" />{" "}
-            {locationName}
-          </Text>
-
+          {/* CURRENT WEATHER */}
           <CurrentWeather weather={weather} locationName={locationName} />
 
+          {/* HOURLY */}
           <HourlyWeather weather={weather} />
 
-          <DailyWeather weather={weather} />
+          {/* DAILY */}
+          <DailyWeather weather={weather} locationName={locationName} />
 
+          {/* SUN */}
           <SunCard weather={weather} />
 
+          {/* LUNAR */}
           <LunarCard days={lunarDays} />
 
-          {/* FIX PM25 */}
+          {/* AIR QUALITY */}
           {pm25 != null ? (
             <AirQualityCard pm25={pm25} />
           ) : (
@@ -117,11 +132,17 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      {menuOpen && <DrawerMenu slideAnim={slideAnim} closeMenu={closeMenu} />}
+      {/* DRAWER MENU */}
+      {menuOpen && (
+        <DrawerMenu
+          slideAnim={slideAnim}
+          closeMenu={closeMenu}
+          locations={locations}
+        />
+      )}
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safe: {
     flex: 1,

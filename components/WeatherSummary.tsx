@@ -1,10 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
 import { getWeatherDescription, getWeatherIcon } from "../utils/weatherCode";
 import { formatDateTitle } from "../utils/weatherFormat";
-
 export default function WeatherSummary({ weather, dayIndex = 0 }: any) {
   const [open, setOpen] = useState(false);
 
@@ -23,7 +22,12 @@ export default function WeatherSummary({ weather, dayIndex = 0 }: any) {
     <Pressable style={styles.card} onPress={() => setOpen(!open)}>
       {/* TOP ROW */}
       <View style={styles.row}>
-        <Text style={styles.icon}>{getWeatherIcon(todayCode, is_day)}</Text>
+        <LottieView
+          source={getWeatherIcon(todayCode, is_day)}
+          autoPlay
+          loop
+          style={{ width: 40, height: 40 }}
+        />
         <View style={{ flex: 1 }}>
           <Text style={styles.date}>
             {formatDateTitle(weather.daily.time[dayIndex])}

@@ -1,6 +1,6 @@
+import LottieView from "lottie-react-native";
 import { StyleSheet, Text, View } from "react-native";
 import { getMoonIcon } from "../utils/moonIcon";
-
 export default function LunarCard({ days }: any) {
   return (
     <View style={styles.card}>
@@ -24,7 +24,12 @@ export default function LunarCard({ days }: any) {
             <View key={i} style={styles.cell}>
               <Text style={styles.day}>{d.day}</Text>
 
-              <Text style={styles.moon}>{getMoonIcon(d.phase)}</Text>
+              <LottieView
+                source={getMoonIcon(d.phase)}
+                autoPlay
+                loop
+                style={{ width: 40, height: 40 }}
+              />
             </View>
           );
         })}

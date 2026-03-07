@@ -1,4 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import LottieView from "lottie-react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
 import { formatDay } from "../utils/format";
 import { getWeatherIcon } from "../utils/weatherCode";
 
@@ -13,69 +16,92 @@ function getWindArrow(deg: number) {
   return "↖";
 }
 
-export default function DailyWeather({ weather }: any) {
-  if (!weather) return null;
+export default function DailyWeather({ weather, locationName }: any) {
+  const navigation = useNavigation<any>();
 
-  const days = weather.daily.time.slice(0, 14);
-  const max = weather.daily.temperature_2m_max.slice(0, 14);
-  const min = weather.daily.temperature_2m_min.slice(0, 14);
-  const codes = weather.daily.weathercode.slice(0, 14);
+  if (!weather?.daily) return null;
+
+  const days = weather.daily.time?.slice(0, 14) ?? [];
+  const max = weather.daily.temperature_2m_max?.slice(0, 14) ?? [];
+  const min = weather.daily.temperature_2m_min?.slice(0, 14) ?? [];
+  const codes = weather.daily.weathercode?.slice(0, 14) ?? [];
+
+  const rainProb =
+    weather.daily.precipitation_probability_mean?.slice(0, 14) ?? [];
+
+  const rainSum = weather.daily.precipitation_sum?.slice(0, 14) ?? [];
+
+  const windSpeed = weather.daily.windspeed_10m_max?.slice(0, 14) ?? [];
+
+  const windDir = weather.daily.winddirection_10m_dominant?.slice(0, 14) ?? [];
+
   const is_day = true;
-  const rainProb = weather.daily.precipitation_probability_mean?.slice(0, 14);
-  const rainSum = weather.daily.precipitation_sum?.slice(0, 14);
-
-  const windSpeed = weather.daily.windspeed_10m_max?.slice(0, 14);
-  const windDir = weather.daily.winddirection_10m_dominant?.slice(0, 14);
 
   return (
     <View style={styles.container}>
       {days.map((day: string, i: number) => {
-        const showRain = rainProb && rainProb[i] > 0;
+        const dayData = formatDay(day);
 
         return (
-          <View
+          <Pressable
             key={i}
             style={[
               styles.row,
               i === days.length - 1 && { borderBottomWidth: 0 },
             ]}
+            onPress={() =>
+              navigation.navigate("weather-detail", {
+                dayIndex: i,
+                date: day,
+                weather: JSON.stringify(weather),
+                locationName: locationName || "",
+              })
+            }
           >
             {/* ngày */}
             <View style={styles.leftDay}>
-              <Text style={styles.day}>{formatDay(day).label}</Text>
-              <Text style={styles.subDay}>{formatDay(day).sub}</Text>
+              <Text style={styles.day}>{dayData.label}</Text>
+              <Text style={styles.subDay}>{dayData.sub}</Text>
             </View>
 
             {/* icon + rain */}
             <View style={styles.weatherBlock}>
-              <Text style={styles.icon}>
-                {getWeatherIcon(codes[i], is_day)}
-              </Text>
+              <LottieView
+                source={getWeatherIcon(codes[i], is_day)}
+                autoPlay
+                loop
+                style={{ width: 30, height: 30 }}
+              />
+
               <View style={styles.rain}>
-                <Text style={styles.rainText}>{rainProb[i]}%</Text>
-                <Text style={styles.rainText}>{rainSum[i]?.toFixed(1)} mm</Text>
+                <Text style={styles.rainText}>{rainProb?.[i] ?? 0}%</Text>
+
+                <Text style={styles.rainText}>
+                  {rainSum?.[i]?.toFixed?.(1) ?? "0"} mm
+                </Text>
               </View>
             </View>
 
             {/* nhiệt độ */}
             <Text style={styles.temp}>
-              <Text style={styles.max}>{Math.round(max[i])}°</Text> /{" "}
-              <Text style={styles.min}>{Math.round(min[i])}°</Text>
+              <Text style={styles.max}>{Math.round(max?.[i] ?? 0)}°</Text>/
+              <Text style={styles.min}>{Math.round(min?.[i] ?? 0)}°</Text>
             </Text>
 
             {/* gió */}
             <View style={styles.wind}>
               <Text style={styles.windArrow}>
-                {getWindArrow(windDir?.[i] || 0)}
+                {getWindArrow(windDir?.[i] ?? 0)}
               </Text>
+
               <Text style={styles.windText}>
-                {Math.round(windSpeed?.[i] || 0)} km/h
+                {Math.round(windSpeed?.[i] ?? 0)} km/h
               </Text>
             </View>
 
-            {/* arrow detail */}
+            {/* arrow */}
             <Text style={styles.arrow}>›</Text>
-          </View>
+          </Pressable>
         );
       })}
     </View>
@@ -84,85 +110,87 @@ export default function DailyWeather({ weather }: any) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.08)",
     marginBottom: 16,
   },
 
   row: {
+    display: "flex",
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
-    paddingHorizontal: 12,
+    paddingLeft: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#000",
+    backgroundColor: "#FFF",
     justifyContent: "space-between",
+    alignContent: "center",
+    width: "100%",
   },
 
   leftDay: {
-    width: 70,
+    width: 58,
   },
 
   day: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
   },
 
   subDay: {
+    color: "#cccccc",
     fontSize: 12,
-    color: "#777",
   },
 
   weatherBlock: {
-    width: 70,
+    flexDirection: "row",
     alignItems: "center",
-  },
-
-  icon: {
-    fontSize: 22,
   },
 
   rain: {
-    alignItems: "center",
+    marginLeft: 4,
   },
 
   rainText: {
     fontSize: 12,
-    color: "#1e88e5",
   },
 
   temp: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: 16,
   },
 
   max: {
-    color: "#e53935",
-    fontWeight: "600",
+    color: "#bc504c",
   },
 
   min: {
-    color: "#555",
+    color: "#386dc5",
   },
 
   wind: {
-    width: 60,
+    flexDirection: "row",
     alignItems: "center",
+    width: 80,
   },
 
   windArrow: {
     fontSize: 16,
-    color: "#2196f3",
+    marginRight: 0,
   },
 
   windText: {
     fontSize: 12,
-    color: "#555",
   },
 
   arrow: {
-    fontSize: 22,
-    color: "#999",
-    paddingHorizontal: 5,
+    color: "#386dc5",
+    fontSize: 24,
+    position: "absolute",
+    right: 10,
+    top: "50%",
+    transform: [{ translateY: -6 }],
+    fontWeight: "700",
   },
 });
